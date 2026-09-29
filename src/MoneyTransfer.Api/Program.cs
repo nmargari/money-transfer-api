@@ -1,5 +1,9 @@
+using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using MoneyTransfer.Api.Auth;
 using MoneyTransfer.Api.Data;
+using MoneyTransfer.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +11,11 @@ var connectionString = builder.Configuration.GetConnectionString("Default") ?? t
 
 builder.Services.AddDbContext<AppDbContext>(options =>
                                             options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+builder.Services.AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, configureOptions : null);
+builder.Services.AddAuthorization();
+builder.Services.ConfigureHttpJsonOptions(options => 
+                                          options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
 
 var app = builder.Build();
 
@@ -30,6 +39,10 @@ if(command is "migrate" or "seed")
     return;
 }
 
-app.MapGet("/", () => "Hello World!");
+app.UseAuthentication();
+app.UseAuthorization();
+
+var api = app.MapGroup("").RequireAuthorization();
+api.MapAccountEndpoints();
 
 app.Run();
