@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MoneyTransfer.Api.Auth;
 using MoneyTransfer.Api.Data;
 using MoneyTransfer.Api.Endpoints;
+using MoneyTransfer.Api.Errors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
 builder.Services.AddAuthorization();
 builder.Services.ConfigureHttpJsonOptions(options => 
                                           options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
@@ -38,6 +41,9 @@ if(command is "migrate" or "seed")
 
     return;
 }
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 app.UseAuthentication();
 app.UseAuthorization();
