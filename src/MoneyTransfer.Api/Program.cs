@@ -10,6 +10,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+var command = args.FirstOrDefault();
+if(command is "migrate" or "seed")
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if(command == "migrate")
+    {
+        await db.Database.MigrateAsync();
+    }
+    else if(command == "seed")
+    {
+        await DatabaseSeeder.SeedAsync(db);
+    }    
+
+    Console.WriteLine($"Command '{command}' completed.");
+
+    return;
+}
+
 app.MapGet("/", () => "Hello World!");
 
 app.Run();
