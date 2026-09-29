@@ -5,6 +5,7 @@ using MoneyTransfer.Api.Auth;
 using MoneyTransfer.Api.Data;
 using MoneyTransfer.Api.Endpoints;
 using MoneyTransfer.Api.Errors;
+using MoneyTransfer.Api.Transfers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
                                           options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddScoped<TransferService>();
 
 var app = builder.Build();
 
@@ -50,5 +52,6 @@ app.UseAuthorization();
 
 var api = app.MapGroup("").RequireAuthorization();
 api.MapAccountEndpoints();
+api.MapTransferEndpoints();
 
 app.Run();
