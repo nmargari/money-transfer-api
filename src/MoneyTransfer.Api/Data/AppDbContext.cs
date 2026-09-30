@@ -26,10 +26,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(a => a.Id).HasMaxLength(64);
             e.Property(a => a.Currency).HasMaxLength(3);
 
-            e.HasOne<Customer>()
-                .WithMany()
-                .HasForeignKey(a => a.CustomerId)
-                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Customer>().WithMany()
+                                .HasForeignKey(a => a.CustomerId)
+                                .OnDelete(DeleteBehavior.Restrict);
 
             e.ToTable(t => t.HasCheckConstraint("ck_accounts_balance_non_negative", "balance >= 0"));
         });
@@ -40,10 +39,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(t => t.Currency).HasMaxLength(3);
             e.Property(t => t.CreatedAt).HasDefaultValueSql("now()");
 
-            e.HasOne<Account>()
-                .WithMany()
-                .HasForeignKey(t => t.DestinationAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Account>().WithMany()
+                               .HasForeignKey(t => t.DestinationAccountId)
+                               .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne<Account>().WithMany()
+                               .HasForeignKey(t => t.SourceAccountId)
+                               .OnDelete(DeleteBehavior.Restrict);
 
             e.HasIndex(t => new { t.SourceAccountId, t.Id });
             e.HasIndex(t => new { t.DestinationAccountId, t.Id });
