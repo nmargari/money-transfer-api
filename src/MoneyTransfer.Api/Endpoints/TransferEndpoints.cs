@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using MoneyTransfer.Api.Auth;
 using MoneyTransfer.Api.Transfers;
 
@@ -12,17 +13,24 @@ public static class TransferEndpoints
     }
 
     private static async Task<IResult> CreateTransferAsync(CreateTransferRequest request,
+                                                           [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
                                                            ClaimsPrincipal user,
                                                            TransferService transferService,
+                                                           HttpContext httpContext,
                                                            CancellationToken cancellationToken)
     {
-        var (command, errors) = TransferRequestValidator.Validate(request);
+        var (command, errors) = TransferRequestValidator.Validate(request, idempotencyKey);
         if(command is null)
         {
             return TypedResults.ValidationProblem(errors);
         }
 
-        var result = await transferService.CreateAsync(user.GetCustomerId(), command, cancellationToken);
+        var result = await transferService.CreateAsync(user.GetCustomerId(), idempotencyKey!, command, cancellationToken);
+
+        if(result.IsReplay)
+        {
+            httpContext.Response.Headers["Idempotent-Replayed"] = "true";
+        }
 
         if(result.Error is { } error)
         {

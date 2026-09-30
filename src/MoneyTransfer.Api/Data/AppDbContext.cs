@@ -7,6 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Transfer> Transfers => Set<Transfer>();
+    public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -52,6 +53,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 t.HasCheckConstraint("ck_transfers_amount_positive", "amount > 0");
                 t.HasCheckConstraint("ck_transfers_distinct_accounts", "source_account_id <> destination_account_id");
             });
+        });
+
+        b.Entity<IdempotencyKey>(e =>
+        {
+            e.HasKey(k => new { k.CustomerId, k.Key });
+            e.Property(k => k.CustomerId).HasMaxLength(64);
+            e.Property(k => k.Key).HasMaxLength(255);
+            e.Property(k => k.RequestHash).HasMaxLength(64);
+            e.Property(k => k.CreatedAt).HasDefaultValueSql("now()");
+
+            e.HasOne<Customer>().WithMany()
+                                .HasForeignKey(k => k.CustomerId)
+                                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

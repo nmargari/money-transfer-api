@@ -3,10 +3,20 @@ namespace MoneyTransfer.Api.Transfers;
 public static class TransferRequestValidator
 {
     private const int MaxAccountIdLength = 64;
+    private const int MaxIdempotencyKeyLength = 255;
 
-    public static (TransferCommand? Command, Dictionary<string, string[]> Errors) Validate(CreateTransferRequest request)
+    public static (TransferCommand? Command, Dictionary<string, string[]> Errors) Validate(CreateTransferRequest request, string? idempotencyKey)
     {
         var errors = new Dictionary<string, string[]>();
+
+        if(string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            errors["Idempotency-Key"] = ["The Idempotency-Key header is required."];
+        }
+        else if(idempotencyKey.Length > MaxIdempotencyKeyLength)
+        {
+            errors["Idempotency-Key"] = [$"The Idempotency-Key header must be at most {MaxIdempotencyKeyLength} characters."];
+        }
 
         ValidateAccountId(request.SourceAccountId, "source_account_id", errors);
         ValidateAccountId(request.DestinationAccountId, "destination_account_id", errors);
