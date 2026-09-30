@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/MoneyTransfer.Api/MoneyTransfer.Api.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MoneyTransfer.Api.Tests/MoneyTransfer.Api.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -55,7 +55,7 @@ public class TransferService(AppDbContext db)
 
         if(stored.RequestHash !=  requestHash)
         {
-            return  TransferResult.Failure(StatusCodes.Status409Conflict, "idempotency_key_reused", "This Idempotency-Key was already used with a differenct request.");        
+            return  TransferResult.Failure(StatusCodes.Status409Conflict, "idempotency_key_reused", "This Idempotency-Key was already used with a different request.");        
         }
 
         var result = stored.ResponseStatus == StatusCodes.Status201Created ? 

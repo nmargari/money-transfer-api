@@ -55,3 +55,5 @@ api.MapAccountEndpoints();
 api.MapTransferEndpoints();
 
 app.Run();
+
+public partial class Program { }
