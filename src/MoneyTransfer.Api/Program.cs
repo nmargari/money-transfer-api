@@ -21,6 +21,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddScoped<TransferService>();
+builder.Services.AddScoped<TransferHistoryService>();
 
 var app = builder.Build();
 
@@ -46,7 +47,6 @@ if(command is "migrate" or "seed")
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
