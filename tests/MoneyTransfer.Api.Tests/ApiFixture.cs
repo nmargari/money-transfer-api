@@ -9,7 +9,6 @@ using Xunit;
 
 namespace MoneyTransfer.Api.Tests;
 
-// One PostgreSQL container and one in-memory API, shared by every test in the "api" collection.
 public class ApiFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17").Build();
